@@ -5,6 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>loading...</title>
 <link rel="icon" type="image/png" href="images/other/pinkdino.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
 * {
@@ -17,10 +20,16 @@
 html, body {
     height: 100%;
     overflow: hidden;
-    font-family: Arial, Helvetica, sans-serif;
-    background: #070c0a;
+    font-family: "Outfit", Arial, sans-serif;
+    font-weight: 600;
+    background: #0b0808;
 }
 
+/* ── BACKGROUND ────────────────────────────────────────────
+   To change the background image, update the url() below.
+   Example: url("/images/themes/your_image.png")
+   To remove it, delete the body::before block entirely.
+─────────────────────────────────────────────────────────── */
 body::before {
     content: "";
     position: fixed;
@@ -33,7 +42,7 @@ body::after {
     content: "";
     position: fixed;
     inset: 0;
-    background: rgba(0,0,0,0.55);
+    background: rgba(0,0,0,0.6);
     z-index: 0;
 }
 
@@ -52,21 +61,22 @@ body::after {
 
 .logo {
     font-size: 46px;
-    color: #e8f2ee;
+    font-weight: 800;
+    color: #f5e0e0;
     letter-spacing: 2px;
     text-transform: lowercase;
-    text-shadow: 0 0 20px rgba(95,174,135,0.25);
+    text-shadow: 0 0 20px rgba(180, 30, 30, 0.3);
 }
 
 .logo em {
     font-style: normal;
-    color: #5fae87;
+    color: #e05555;
 }
 
 .bar-wrap {
     width: 320px;
     height: 10px;
-    background: rgba(95,174,135,0.15);
+    background: rgba(180, 30, 30, 0.15);
     border-radius: 999px;
     position: relative;
 }
@@ -74,10 +84,10 @@ body::after {
 #loading-bar {
     height: 100%;
     width: 0%;
-    background: #5fae87;
+    background: #b41e1e;
     border-radius: 999px;
     transition: width 0.05s linear;
-    box-shadow: 0 0 12px rgba(95,174,135,0.5);
+    box-shadow: 0 0 12px rgba(180, 30, 30, 0.55);
 }
 
 #loading-dino {
@@ -85,12 +95,13 @@ body::after {
     top: -12px;
     width: 28px;
     left: -14px;
-    filter: drop-shadow(0 0 6px rgba(95,174,135,0.6));
+    filter: drop-shadow(0 0 6px rgba(180, 30, 30, 0.65));
 }
 
 .loading-text {
     font-size: 13px;
-    color: rgba(232,242,238,0.75);
+    font-weight: 700;
+    color: rgba(245, 224, 224, 0.75);
     letter-spacing: 0.12em;
     text-transform: lowercase;
 }
@@ -99,7 +110,7 @@ body::after {
 <script src="/storage/js/c.js"></script>
 <body>
 <div class="wrap">
-    <div class="logo">xy<em>lora</em></div>
+    <div class="logo">in<em>fuse</em></div>
     <div class="bar-wrap">
         <div id="loading-bar"></div>
         <img id="loading-dino" src="images/other/pinkdino.png" />
