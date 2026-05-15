@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>xylora</title>
+    <link rel="icon" type="image/png" href="/images/icons/favicon.ico">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        html, body {
+            margin: 0;
+            height: 100%;
+            overflow: hidden;
+            background: #080d0b;
+            font-family: "Segoe UI", Arial, sans-serif;
+            user-select: none;
+        }
+
+        iframe {
+            position: fixed;
+            inset: 0;
+            width: 100vw;
+            height: 100vh;
+            border: none;
+            z-index: 0;
+        }
+
+        .taskbar {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            padding: 6px 14px;
+            background: rgba(var(--accent-soft), 0.85);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(37, 56, 48, 0.6);
+            border-radius: 18px;
+            z-index: 100;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(63, 127, 99, 0.08);
+            transition: opacity 0.25s ease, transform 0.25s ease;
+        }
+
+        .taskbar-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            border: none;
+            background: transparent;
+            color: #526a60;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.18s ease;
+            position: relative;
+        }
+
+        
+
+        .taskbar-btn:focus,
+        .taskbar-btn:focus-visible {
+            outline: none;
+        }
+
+
+        .taskbar-btn:hover {
+            background: rgba(63, 127, 99, 0.12);
+            color: #88a49a;
+        }
+
+        .taskbar-btn.active {
+            background: rgba(63, 127, 99, 0.18);
+            color: #5fae87;
+            box-shadow: 0 0 16px rgba(63, 127, 99, 0.25);
+        }
+
+        .taskbar-divider {
+            width: 1px;
+            height: 24px;
+            background: rgba(37, 56, 48, 0.8);
+            margin: 0 4px;
+        }
+
+        .taskbar-btn::after {
+            content: attr(data-tip);
+            position: absolute;
+            bottom: calc(100% + 10px);
+            left: 50%;
+            transform: translateX(-50%) translateY(4px);
+            padding: 6px 12px;
+            background: rgba(13, 22, 18, 0.95);
+            border: 1px solid #253830;
+            border-radius: 8px;
+            color: #e8f2ee;
+            font-size: 11px;
+            font-family: Arial, Helvetica, sans-serif;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.15s ease;
+        }
+
+        .taskbar-btn:hover::after {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        .taskbar.hidden {
+            opacity: 0;
+            transform: translateX(-50%) translateY(20px);
+            pointer-events: none;
+        }
+
+        .toast {
+            position: fixed;
+            right: 16px;
+            bottom: 16px;
+            color: #fff;
+            padding: .6rem 1rem;
+            border-radius: 12px;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: opacity .18s ease, transform .18s ease;
+            z-index: 9999;
+            pointer-events: none;
+            background: #526a60;
+            box-shadow: 0 8px 24px var(--accent-purple-50);
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: none;
+        }
+    </style>
+</head>
+<body>
+    <iframe id="frame" src="home.html"></iframe>
+    <script src="/storage/js/c.js"></script>
+    <div class="taskbar" id="taskbar">
+        <button class="taskbar-btn" data-tip="home" data-src="/home.html">
+            <i class="fa-solid fa-house"></i>
+        </button>
+        <button class="taskbar-btn" data-tip="study" data-src="/study.html">
+            <i class="fa-solid fa-gamepad"></i>
+        </button>
+        <button class="taskbar-btn" data-tip="apps" data-src="/apps.html">
+            <i class="fa-solid fa-th-large"></i>
+        </button>
+        <button class="taskbar-btn" data-tip="browse" data-src="/browse.html">
+            <i class="fa-solid fa-globe"></i>
+        </button>
+        <div class="taskbar-divider"></div>
+        <button class="taskbar-btn" data-tip="settings" data-src="/settings.html">
+            <i class="fa-solid fa-gear"></i>
+        </button>
+        <button class="taskbar-btn" id="cloakBtn" data-tip="cloak">
+            <i class="fa-solid fa-shield-halved"></i>
+        </button>
+        <button class="taskbar-btn" id="closeTaskbar" data-tip="close">
+            <i class="fa-solid fa-xmark"></i>
+        </button>
+    </div>
+    <div id="toast" class="toast"></div>
+<script>
+const iframe = document.getElementById("frame");
+const buttons = document.querySelectorAll(".taskbar-btn[data-src]");
+
+function setActiveBySrc(src) {
+    buttons.forEach(btn => {
+        btn.classList.toggle("active", btn.dataset.src === src);
+    });
+}
+
+function navigate(btn) {
+    const src = btn.dataset.src;
+    iframe.src = src;
+    setActiveBySrc(src);
+}
+
+buttons.forEach(btn => {
+    btn.addEventListener("click", () => navigate(btn));
+});
+
+setActiveBySrc("/home.html");
+
+function syncActive() {
+    try {
+        const path = iframe.contentWindow.location.pathname;
+        if (path) setActiveBySrc(path);
+    } catch (e) {
+        setActiveBySrc(iframe.src);
+    }
+}
+
+iframe.addEventListener("load", syncActive);
+
+setInterval(syncActive, 500);
+
+const taskbar = document.getElementById("taskbar");
+const closeBtn = document.getElementById("closeTaskbar");
+
+let taskbarVisible = true;
+let taskbarState = "open";
+
+function showTaskbar() {
+    taskbarVisible = true;
+    taskbarState = "open";
+    taskbar.classList.remove("hidden");
+    taskbar.style.pointerEvents = "auto";
+}
+
+function hideTaskbar() {
+    taskbarVisible = false;
+    taskbarState = "hidden";
+    taskbar.classList.add("hidden");
+    taskbar.style.pointerEvents = "none";
+}
+
+closeBtn.addEventListener("click", () => {
+    if (taskbarState !== "open") return;
+    taskbarState = "closing";
+    hideTaskbar();
+    showToast("press \\ to reopen taskbar (above enter key)");
+    setTimeout(() => {
+        taskbarState = "hidden";
+    }, 250);
+});
+
+function handleBackslash(e) {
+    if (e.code !== "Backslash" || e.repeat) return;
+    e.preventDefault();
+    if (taskbarVisible) {
+        hideTaskbar();
+    } else {
+        showTaskbar();
+    }
+}
+
+window.addEventListener("keydown", handleBackslash, true);
+iframe.addEventListener("load", () => {
+    try {
+        iframe.contentWindow.addEventListener("keydown", handleBackslash, true);
+    } catch(e) {}
+});
+
+const toast = document.getElementById("toast");
+let toastTimeout;
+
+function showToast(txt, time = 1500) {
+    if (!toast) return;
+    toast.textContent = txt;
+    toast.classList.add("show");
+    clearTimeout(toastTimeout);
+    toastTimeout = setTimeout(() => {
+        toast.classList.remove("show");
+    }, time);
+}
+
+document.getElementById("cloakBtn").addEventListener("click", () => {
+    localStorage.getItem("blobButton") === "true" ? openBlob() : openAbout();
+});
+</script>
+<script src="/socket.io/socket.io.js"></script>
+<script>
+const socket = io();
+let deviceId = localStorage.getItem("deviceId");
+if (!deviceId) {
+  deviceId = crypto.randomUUID();
+  localStorage.setItem("deviceId", deviceId);
+}
+socket.emit("register-device", deviceId);
+socket.on("online-users", (count) => {
+  if (!iframe || !iframe.contentWindow) return;
+  iframe.contentWindow.postMessage(
+    { type: "online-users", count },
+    "*"
+  );
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>settings</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+<style>
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+}
+
+html,body{
+  height:100%;
+  font-family:arial,helvetica,sans-serif;
+  background:#070c0a;
+  overflow-y: auto;
+}
+
+body::before{
+  content:"";
+  position:fixed;
+  inset:0;
+  background:url("/images/themes/forest_v2.png") center/cover no-repeat;
+  z-index:0;
+}
+
+body::after{
+  content:"";
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,0.55);
+  z-index:0;
+}
+
+.wrap {
+  position: relative;
+  z-index: 1;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(12px, 3vh, 32px) 20px clamp(120px, 20vh, 220px);
+}
+
+.panel {
+  width: min(680px, 92vw);
+  display: flex;
+  flex-direction: column;
+  gap: clamp(8px, 1.5vh, 12px);
+  margin: auto;
+}
+
+.panel::-webkit-scrollbar {
+  display: none;
+}
+
+.card {
+  background: rgba(63,127,99,0.12);
+  border: 1px solid rgba(95,174,135,0.25);
+  border-radius: 14px;
+  padding: clamp(10px, 2vh, 16px) clamp(12px, 2vw, 16px);
+  color: #e8f2ee;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.24);
+}
+
+label{
+  display:block;
+  font-size:13px;
+  font-weight:600;
+  margin-bottom:6px;
+  color:#cfe7db;
+  text-transform:lowercase;
+}
+
+
+select, input {
+  width: 100%;
+  padding: clamp(7px, 1.2vh, 10px);
+  border-radius: 10px;
+  border: 1px solid rgba(95,174,135,0.25);
+  background: rgba(0,0,0,0.35);
+  color: #e8f2ee;
+  outline: none;
+  font-size: clamp(12px, 1.5vh, 14px);
+}
+
+select:focus,input:focus{
+  border-color:rgba(95,174,135,0.5);
+  box-shadow:0 0 0 3px rgba(95,174,135,0.12);
+}
+
+.row{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  margin-top:10px;
+}
+
+.btn {
+  padding: clamp(7px, 1.2vh, 10px) clamp(10px, 1.5vw, 14px);
+  border-radius: 999px;
+  border: 1px solid rgba(95,174,135,0.25);
+  background: rgba(63,127,99,0.18);
+  color: #e8f2ee;
+  cursor: pointer;
+  font-size: clamp(11px, 1.3vh, 13px);
+  text-transform: lowercase;
+  transition: transform 0.15s ease, background 0.15s ease;
+}
+
+.btn:hover{
+  background:rgba(95,174,135,0.25);
+  transform:translatey(-2px);
+}
+
+.muted{
+  font-size:12px;
+  opacity:0.7;
+  margin-top:6px;
+  line-height:1.4;
+}
+
+.kbd{
+  padding:8px 10px;
+  border-radius:10px;
+  background:rgba(0,0,0,0.35);
+  display:inline-block;
+  min-width:140px;
+  text-align:center;
+  font-weight:600;
+  text-transform:lowercase;
+}
+
+.preview{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  padding:10px;
+  border-radius:12px;
+  margin-top:10px;
+  background:rgba(0,0,0,0.2);
+  border:1px dashed rgba(95,174,135,0.22);
+}
+
+.preview img{
+  width:32px;
+  height:32px;
+  border-radius:8px;
+  object-fit:contain;
+}
+
+.preview-title{
+  font-weight:700;
+  color:#e8f2ee;
+  text-transform:lowercase;
+  line-height:1.2;
+}
+
+.preview-sub{
+  font-size:12px;
+  color:#cfe7db;
+  opacity:0.8;
+  text-transform:lowercase;
+}
+
+.switch{
+  position:relative;
+  width:46px;
+  height:24px;
+  flex:0 0 auto;
+}
+
+.switch input{
+  display:none;
+}
+
+.slider{
+  position:absolute;
+  inset:0;
+  background:#333;
+  border-radius:999px;
+}
+
+.slider:before{
+  content:"";
+  position:absolute;
+  height:18px;
+  width:18px;
+  left:3px;
+  top:3px;
+  background:#fff;
+  border-radius:50%;
+  transition:0.2s;
+}
+
+.switch input:checked + .slider{
+  background:#5fae87;
+}
+
+.switch input:checked + .slider:before{
+  transform:translatex(22px);
+}
+
+.toggle-line{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+}
+
+.bg-preset {
+  width: 72px;
+  height: 44px;
+  border-radius: 8px;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  overflow: hidden;
+  border: 2px solid rgba(255,255,255,0.1);
+  cursor: pointer;
+  transition: transform .15s, border-color .15s;
+  flex-shrink: 0;
+}
+.bg-preset:hover { transform: scale(1.05) }
+.bg-preset.active { border-color: #e8f2ee }
+
+@media (max-height: 700px) {
+  .panel {
+    gap: 8px;
+  }
+
+  .card {
+    padding: 10px 12px;
+  }
+
+  label {
+    margin-bottom: 4px;
+  }
+
+  select, input {
+    padding: 8px;
+    font-size: 13px;
+  }
+
+  .btn {
+    padding: 8px 12px;
+    font-size: 12px;
+  }
+
+  .preview {
+    padding: 8px;
+    margin-top: 8px;
+  }
+
+  .row {
+    margin-top: 8px;
+    gap: 8px;
+  }
+
+  .muted {
+    font-size: 11px;
+  }
+}
+</style>
+</head>
+
+<body>
+<div class="wrap">
+  <div class="panel">
+    <div class="card" id="tabcloak-card">
+      <div>
+        <label for="tabPreset">tab cloak preset</label>
+        <select id="tabPreset" aria-label="tab cloak preset">
+          <option value="__default">default (no cloak)</option>
+          <option value="google">google</option>
+          <option value="bing">bing</option>
+          <option value="gmail">gmail</option>
+          <option value="desmos">desmos</option>
+          <option value="googleclassroom">google classroom</option>
+          <option value="wikipedia">wikipedia</option>
+          <option value="chrometab">chrome new tab</option>
+          <option value="googledrive">google drive</option>
+          <option value="clever">clever</option>
+        </select>
+        <div class="muted">pick a preset. selecting default clears any saved cloak.</div>
+      </div>
+      <div class="preview" id="cloakPreview">
+        <img id="previewFavicon" src="" alt="favicon preview">
+        <div>
+          <div class="preview-title" id="previewTitle">current title</div>
+          <div class="preview-sub" id="previewSub">preview</div>
+        </div>
+      </div>
+      <div class="row">
+        <button class="btn" id="applyCloak">save preset</button>
+        <button class="btn" id="clearCloak">clear default</button>
+      </div>
+    </div>
+    <div class="card" id="panic-card">
+      <label>panic key</label>
+      <div class="kbd" id="panicDisplay">not set</div>
+      <div class="row">
+        <button class="btn" id="startCapture">capture</button>
+        <button class="btn" id="clearPanic">clear</button>
+      </div>
+      <div class="muted">when capturing, press the key combination you want. the combo will be copied to the clipboard and saved.</div>
+      <div style="margin-top:12px;">
+        <label for="panicUrl">panic url</label>
+        <div class="row">
+          <input type="url" id="panicUrl" placeholder="https://www.google.com/" />
+          <button class="btn" id="savePanicUrl">save url</button>
+          <button class="btn" id="testPanic">go now</button>
+        </div>
+      </div>
+    </div>
+    <div class="card" id="bg-card">
+      <label>background & theme</label>
+      <div style="display:flex;gap:8px;align-items:center;margin-bottom:10px;">
+        <div class="bg-preset" data-bg="/images/themes/forest_v2.png" style="background-image:url('/images/themes/forest_v2.png')" title="forest"></div>
+        <div class="bg-preset" data-bg="/images/themes/night.png" style="background-image:url('/images/themes/night.png')" title="night"></div>
+        <div class="bg-preset" data-bg="/images/themes/sunrise.png" style="background-image:url('/images/themes/sunrise.png')" title="sunrise"></div>
+        <div class="bg-preset" data-bg="/images/themes/forest.png" style="background-image:url('/images/themes/forest.png')" title="forest"></div>
+        <div class="bg-preset" data-bg="/images/themes/forest_snow.png" style="background-image:url('/images/themes/forest_snow.png')" title="snowy forest"></div>
+      </div>
+      <div class="row" style="margin-top:0;flex-wrap:nowrap;align-items:center;">
+      <input type="url" id="bgUrl" placeholder="custom background url" style="flex:1;min-width:0;"/>
+        <button class="btn" id="saveBg" style="white-space:nowrap;">save</button>
+        <button class="btn" id="clearBg" style="white-space:nowrap;">clear</button>
+      </div>
+    <div class="muted">choose a preset background or paste an image url (refresh ur page when setting themes)</div>
+    </div>
+    <div class="card" id="protection-card">
+      <label>close protection</label>
+      <div class="toggle-line">
+        <div class="muted" style="margin-top:0;">warn before reloading or closing the tab</div>
+        <label class="switch">
+          <input type="checkbox" id="warningToggle">
+          <span class="slider"></span>
+        </label>
+      </div>
+    </div>
+    <div class="card" id="skip-card">
+      <label>skip loading screen</label>
+      <div class="toggle-line">
+        <div class="muted" style="margin-top:0;">skip the loading animation and go straight to the page</div>
+        <label class="switch">
+          <input type="checkbox" id="skipLoadingToggle">
+          <span class="slider"></span>
+        </label>
+      </div>
+    </div>
+    <div class="card" id="blob-card">
+      <label>blob cloak</label>
+      <div class="toggle-line">
+        <div class="muted" style="margin-top:0;">the cloak is blob instead of about:blank</div>
+        <label class="switch">
+          <input type="checkbox" id="blobToggle">
+          <span class="slider"></span>
+        </label>
+      </div>
+    </div>
+</div>
+<div id="toast" class="toast"></div>
+<style>
+.toast{
+  position:fixed;
+  right:16px;
+  bottom:16px;
+  background:rgba(83,45,128,.85);
+  color:#fff;
+  padding:.6rem 1rem;
+  border-radius:12px;
+  box-shadow:0 8px 24px rgba(83,45,128,.5);
+  opacity:0;
+  transform:translatey(10px);
+  transition:opacity .18s ease, transform .18s ease;
+  z-index:9999;
+  pointer-events:none;
+  font-size:14px;
+}
+.toast.show{
+  opacity:1;
+  transform:none;
+}
+</style>
+<script>
+const presetEl=document.getElementById('tabPreset')
+const previewFavicon=document.getElementById('previewFavicon')
+const previewTitle=document.getElementById('previewTitle')
+const previewSub=document.getElementById('previewSub')
+const applyCloakBtn=document.getElementById('applyCloak')
+const clearCloakBtn=document.getElementById('clearCloak')
+const panicDisplay=document.getElementById('panicDisplay')
+const startCaptureBtn=document.getElementById('startCapture')
+const clearPanicBtn=document.getElementById('clearPanic')
+const panicUrlInput=document.getElementById('panicUrl')
+const savePanicUrlBtn=document.getElementById('savePanicUrl')
+const testPanicBtn=document.getElementById('testPanic')
+const warningToggle=document.getElementById('warningToggle')
+const skipLoadingToggle=document.getElementById('skipLoadingToggle')
+const toast=document.getElementById('toast')
+const bgUrlInput = document.getElementById("bgUrl")
+const saveBgBtn = document.getElementById("saveBg")
+const clearBgBtn = document.getElementById("clearBg")
+
+const savedBg = localStorage.getItem("customBg")
+if (savedBg) bgUrlInput.value = savedBg
+
+document.querySelectorAll(".bg-preset").forEach(p => {
+  if (savedBg === p.dataset.bg) p.classList.add("active")
+  p.addEventListener("click", () => {
+  document.querySelectorAll(".bg-preset").forEach(x => x.classList.remove("active"))
+    p.classList.add("active")
+    bgUrlInput.value = p.dataset.bg
+    localStorage.setItem("customBg", p.dataset.bg)
+    showToast("background saved")
+  })
+})
+
+saveBgBtn.addEventListener("click", () => {
+  const v = bgUrlInput.value.trim()
+  if (!v) return
+  localStorage.setItem("customBg", v)
+  document.querySelectorAll(".bg-preset").forEach(x => x.classList.remove("active"))
+  showToast("background saved")
+})
+
+clearBgBtn.addEventListener("click", () => {
+  localStorage.removeItem("customBg")
+  bgUrlInput.value = ""
+  document.querySelectorAll(".bg-preset").forEach(x => x.classList.remove("active"))
+  showToast("background cleared")
+})
+
+const PRESETS={
+  google:{favicon:'images/icons/google.ico',title:'google'},
+  bing:{favicon:'images/icons/bing.ico',title:'bing'},
+  gmail:{favicon:'images/icons/gmail.ico',title:'gmail'},
+  desmos:{favicon:'images/icons/desmos.ico',title:'desmos | graphing calculator'},
+  googleclassroom:{favicon:'images/icons/googleclassroom.ico',title:'home'},
+  wikipedia:{favicon:'images/icons/wikipedia.ico',title:'wikipedia'},
+  chrometab:{favicon:'images/icons/chromenewtab.ico',title:'new tab'},
+  googledrive:{favicon:'images/icons/googledrive.ico',title:'my drive'},
+  clever:{favicon:'images/icons/clever.ico',title:'clever'}
+}
+
+function showToast(txt,time=1500){
+  toast.textContent=txt
+  toast.classList.add('show')
+  setTimeout(()=>toast.classList.remove('show'),time)
+}
+
+function cacheOriginal(){
+  document.originalTitle=document.title
+  const lf=document.querySelector("link[rel='icon']")
+  document.originalFavicon=lf?lf.href:null
+}
+cacheOriginal()
+
+function updatePreviewFromSelect(){
+  const v=presetEl.value
+  if(v==='__default'){
+    previewTitle.textContent=document.originalTitle||document.title||'untitled'
+    previewFavicon.src='images/icons/favicon.ico'
+    previewSub.textContent='default (no cloak)'
+  }else if(PRESETS[v]){
+    previewTitle.textContent=PRESETS[v].title
+    previewFavicon.src=PRESETS[v].favicon
+    previewSub.textContent='preview preset'
+  }else{
+    previewTitle.textContent='unknown'
+    previewFavicon.src=''
+    previewSub.textContent=''
+  }
+}
+
+function loadState(){
+  const savedPreset=localStorage.getItem('tabCloakPreset')
+  presetEl.value=savedPreset?savedPreset:'__default'
+  updatePreviewFromSelect()
+
+  const pk=localStorage.getItem('panicKey')
+  panicDisplay.textContent=pk?pk:'not set'
+
+  const pu=localStorage.getItem('panicUrl')||'https://www.google.com/'
+  panicUrlInput.value=pu
+}
+
+presetEl.addEventListener('change',updatePreviewFromSelect)
+
+applyCloakBtn.addEventListener('click',()=>{
+  const val=presetEl.value
+  if(val==='__default'){
+    localStorage.removeItem('tabCloakPreset')
+    showToast('cloak cleared (default)')
+  }else{
+    localStorage.setItem('tabCloakPreset',val)
+    showToast('cloak preset saved')
+  }
+  updatePreviewFromSelect()
+})
+
+clearCloakBtn.addEventListener('click',()=>{
+  presetEl.value='__default'
+  localStorage.removeItem('tabCloakPreset')
+
+  let link=document.querySelector("link[rel='icon']")
+  if(!link){
+    link=document.createElement('link')
+    link.rel='icon'
+    document.head.appendChild(link)
+  }
+  link.href='images/icons/favicon.ico'
+
+  updatePreviewFromSelect()
+  showToast('cloak cleared')
+})
+
+let capturing=false
+let currentPressed=new Set()
+let seenKeys=new Set()
+let captureTimer=null
+
+function normalizeCombo(set){
+  const order=['Control','Alt','Shift','Meta']
+  const arr=Array.from(set)
+  arr.sort((a,b)=>{
+    const ai=order.indexOf(a)===-1?99:order.indexOf(a)
+    const bi=order.indexOf(b)===-1?99:order.indexOf(b)
+    if(ai!==bi) return ai-bi
+    return a.localeCompare(b)
+  })
+  return arr.join('+')
+}
+
+function startCapture(){
+  if(capturing) return
+  capturing=true
+  currentPressed.clear()
+  seenKeys.clear()
+  panicDisplay.textContent='listening... press combo'
+  startCaptureBtn.classList.add('active')
+
+  function kd(e){
+    const key=e.key||''
+    if(!key) return
+    currentPressed.add(key)
+    seenKeys.add(key)
+    panicDisplay.textContent=normalizeCombo(seenKeys)
+    if(captureTimer) clearTimeout(captureTimer)
+    captureTimer=setTimeout(finalizeCapture,450)
+  }
+
+  function ku(e){
+    const key=e.key||''
+    currentPressed.delete(key)
+    if(captureTimer) clearTimeout(captureTimer)
+    captureTimer=setTimeout(finalizeCapture,450)
+  }
+
+  function finalizeCapture(){
+    document.removeEventListener('keydown',kd)
+    document.removeEventListener('keyup',ku)
+    if(captureTimer){
+      clearTimeout(captureTimer)
+      captureTimer=null
+    }
+    capturing=false
+    startCaptureBtn.classList.remove('active')
+
+    if(seenKeys.size===0){
+      panicDisplay.textContent='not set'
+      showToast('no keys captured')
+      return
+    }
+
+    const combo=normalizeCombo(seenKeys)
+    navigator.clipboard?.writeText(combo).catch(()=>{})
+    localStorage.setItem('panicKey',combo)
+    panicDisplay.textContent=combo
+    showToast('captured & copied: ' + combo)
+    currentPressed.clear()
+    seenKeys.clear()
+  }
+
+  document.addEventListener('keydown',kd)
+  document.addEventListener('keyup',ku)
+}
+
+startCaptureBtn.addEventListener('click',startCapture)
+
+clearPanicBtn.addEventListener('click',()=>{
+  localStorage.removeItem('panicKey')
+  panicDisplay.textContent='not set'
+  showToast('panic key cleared')
+})
+
+savePanicUrlBtn.addEventListener('click',()=>{
+  let v=panicUrlInput.value.trim() || localStorage.getItem('panicUrl') || 'https://www.google.com/'
+  if(!/^https?:\/\//i.test(v)) v='https://' + v
+  localStorage.setItem('panicUrl',v)
+  panicUrlInput.value=v
+  panicUrlInput.classList.remove('invalid')
+  panicUrlInput.classList.add('valid')
+  showToast('panic url saved')
+})
+
+testPanicBtn.addEventListener('click',()=>{
+  const v=panicUrlInput.value.trim() || localStorage.getItem('panicUrl') || 'https://www.google.com/'
+  if(confirm('go to panic url now?')) window.location.href=v
+})
+
+panicUrlInput.addEventListener('keydown',(e)=>{
+  if(e.key==='Enter'){
+    savePanicUrlBtn.click()
+    e.preventDefault()
+  }
+})
+
+panicUrlInput.addEventListener('focus',()=>{
+  const stored=localStorage.getItem('panicUrl') || 'https://www.google.com/'
+  if(panicUrlInput.value.trim()===stored.trim()){
+    panicUrlInput.dataset._restorable='1'
+    panicUrlInput.value=''
+  }else{
+    delete panicUrlInput.dataset._restorable
+  }
+})
+
+panicUrlInput.addEventListener('blur',()=>{
+  if(!panicUrlInput.value.trim() && panicUrlInput.dataset._restorable==='1'){
+    panicUrlInput.value=localStorage.getItem('panicUrl') || 'https://www.google.com/'
+  }
+  delete panicUrlInput.dataset._restorable
+})
+
+function setWarning(state){
+  warningToggle.setAttribute('data-state',state)
+  if(state==='on'){
+    localStorage.setItem('warningonclose','true')
+  }else{
+    localStorage.removeItem('warningonclose')
+  }
+}
+
+(function(){
+  const saved=localStorage.getItem('warningonclose')
+  warningToggle.checked=saved==='true'
+})()
+
+warningToggle.addEventListener('change',()=>{
+  setWarning(warningToggle.checked ? 'on' : 'off')
+})
+
+function setSkipLoading(state){
+  skipLoadingToggle.setAttribute('data-state',state)
+  if(state==='on'){
+    localStorage.setItem('skiploading','true')
+  }else{
+    localStorage.removeItem('skiploading')
+  }
+}
+
+(function(){
+  const saved=localStorage.getItem('skiploading')
+  skipLoadingToggle.checked=saved==='true'
+})()
+
+skipLoadingToggle.addEventListener('change',()=>{
+  setSkipLoading(skipLoadingToggle.checked ? 'on' : 'off')
+})
+
+const cloaktoggle=document.getElementById('cloakToggle')
+const blobtoggle=document.getElementById('blobToggle')
+
+if(cloaktoggle){
+  cloaktoggle.checked=localStorage.getItem('cloakMode')==='true'
+  cloaktoggle.addEventListener('change',()=>{
+    localStorage.setItem('cloakMode',cloaktoggle.checked)
+  })
+}
+
+if(blobtoggle){
+  blobtoggle.checked=localStorage.getItem('blobButton')==='true'
+  blobtoggle.addEventListener('change',()=>{
+    localStorage.setItem('blobButton',blobtoggle.checked)
+  })
+}
+
+loadState()
+
+window.addEventListener('storage',(e)=>{
+  if(e.key==='tabCloakPreset' || e.key==='panicKey' || e.key==='panicUrl'){
+    loadState()
+  }
+})
+</script>
+<script src="storage/js/c.js"></script>
+</body>
+</html>

@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>loading...</title>
+<link rel="icon" type="image/png" href="images/other/pinkdino.png">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    user-select: none;
+}
+
+html, body {
+    height: 100%;
+    overflow: hidden;
+    font-family: Arial, Helvetica, sans-serif;
+    background: #070c0a;
+}
+
+body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background: url("/images/themes/forest_v2.png") center/cover no-repeat;
+    z-index: 0;
+}
+
+body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.55);
+    z-index: 0;
+}
+
+.wrap {
+    position: relative;
+    z-index: 1;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 22px;
+    text-align: center;
+    transform: translateY(-2vh);
+}
+
+.logo {
+    font-size: 46px;
+    color: #e8f2ee;
+    letter-spacing: 2px;
+    text-transform: lowercase;
+    text-shadow: 0 0 20px rgba(95,174,135,0.25);
+}
+
+.logo em {
+    font-style: normal;
+    color: #5fae87;
+}
+
+.bar-wrap {
+    width: 320px;
+    height: 10px;
+    background: rgba(95,174,135,0.15);
+    border-radius: 999px;
+    position: relative;
+}
+
+#loading-bar {
+    height: 100%;
+    width: 0%;
+    background: #5fae87;
+    border-radius: 999px;
+    transition: width 0.05s linear;
+    box-shadow: 0 0 12px rgba(95,174,135,0.5);
+}
+
+#loading-dino {
+    position: absolute;
+    top: -12px;
+    width: 28px;
+    left: -14px;
+    filter: drop-shadow(0 0 6px rgba(95,174,135,0.6));
+}
+
+.loading-text {
+    font-size: 13px;
+    color: rgba(232,242,238,0.75);
+    letter-spacing: 0.12em;
+    text-transform: lowercase;
+}
+</style>
+</head>
+<script src="/storage/js/c.js"></script>
+<body>
+<div class="wrap">
+    <div class="logo">xy<em>lora</em></div>
+    <div class="bar-wrap">
+        <div id="loading-bar"></div>
+        <img id="loading-dino" src="images/other/pinkdino.png" />
+    </div>
+    <div class="loading-text" id="loading-text">loading...</div>
+</div>
+<script>
+const bar = document.getElementById("loading-bar");
+const dino = document.getElementById("loading-dino");
+const wrap = document.querySelector(".bar-wrap");
+const text = document.getElementById("loading-text");
+
+function setProgress(p) {
+    p = Math.max(0, Math.min(100, p));
+    bar.style.width = p + "%";
+    const w = wrap.offsetWidth;
+    dino.style.left = (p / 100 * w - 14) + "px";
+    if (p < 50) text.textContent = "loading...";
+    else if (p < 90) text.textContent = "almost done...";
+    else if (p < 100) text.textContent = "hang tight...";
+    else {
+        text.textContent = "done!";
+        setTimeout(() => {
+            window.parent.postMessage("xylora-loading-done", "*");
+        }, 250);
+    }
+}
+
+window.addEventListener("message", (e) => {
+    if (e.data?.type === "progress") {
+        setProgress(e.data.value);
+    }
+});
+</script>
+</body>
+</html>

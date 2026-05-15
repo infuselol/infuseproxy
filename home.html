@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>xylora</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html, body {
+    height: 100%;
+    overflow: hidden;
+    font-family: Arial, Helvetica, sans-serif;
+    background: #070c0a;
+    user-select: none;
+}
+
+body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background: url("/images/themes/forest_v2.png") center/cover no-repeat;
+    z-index: 0;
+}
+
+body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.55);
+    z-index: 0;
+}
+
+.wrap {
+    position: relative;
+    z-index: 1;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    text-align: center;
+    gap: 4px;
+    transform: translateY(-2vh);
+}
+
+.logo {
+    font-size: 46px;
+    color: #e8f2ee;
+    letter-spacing: 2px;
+    text-transform: lowercase;
+    text-shadow: 0 0 20px rgba(63,127,99,0.25);
+}
+
+.logo em {
+    font-style: normal;
+    color: #5fae87;
+}
+
+.buttons {
+    margin-top: 26px;
+    width: 100%;
+    max-width: 520px;
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    gap: 12px;
+}
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px 18px;
+    border-radius: 999px;
+    text-decoration: none;
+    color: #e8f2ee;
+    background: rgba(63,127,99,0.18);
+    border: 1px solid rgba(95,174,135,0.25);
+    font-size: 14px;
+    text-transform: lowercase;
+    white-space: nowrap;
+    transition: transform 0.18s ease, background 0.18s ease;
+    will-change: transform;
+}
+
+.btn:hover {
+    background: rgba(95,174,135,0.25);
+    transform: translateY(-2px);
+}
+
+.btn-study {
+    justify-self: end;
+}
+
+.btn-apps {
+    justify-self: center;
+}
+
+.btn-settings {
+    justify-self: start;
+}
+
+.socials {
+    position: fixed;
+    right: 18px;
+    bottom: 18px;
+    display: flex;
+    flex-direction: row;
+    gap: 8px;
+    z-index: 999;
+}
+
+.socials a {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 12px;
+    border-radius: 8px;
+    background: rgba(95, 174, 135, 0.2);
+    color: #e8f2ee;
+    text-decoration: none;
+    font-size: 13px;
+    transition: 0.15s ease;
+}
+
+.socials a:hover {
+    background: rgba(95, 174, 135, 0.3);
+    transform: translateY(-2px);
+}
+
+.socials i {
+    font-size: 14px;
+}
+
+.online {
+    position: fixed;
+    top: 16px;
+    left: 16px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 12px;
+    border-radius: 8px;
+    background: rgba(95, 174, 135, 0.2);
+    color: #e8f2ee;
+    font-size: 13px;
+    font-weight: 600;
+    z-index: 999;
+    transition: 0.15s ease;
+}
+
+.online:hover {
+    background: rgba(95, 174, 135, 0.3);
+    transform: translateY(-2px);
+}
+
+.online span {
+    color: #5fae87;
+    font-size: 13px;
+}
+</style>
+</head>
+<body>
+<script src="storage/js/c.js"></script>
+<div class="online">
+  online users: <span id="online-count">0</span>
+</div>
+<div class="wrap">
+    <div class="logo">xy<em>lora</em></div>
+    <div class="buttons">
+        <a class="btn btn-study" href="study.html">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            browse study
+        </a>
+        <a class="btn btn-apps" href="apps.html">
+            <i class="fa-solid fa-th-large"></i>
+            apps
+        </a>
+        <a class="btn btn-settings" href="settings.html">
+            <i class="fa-solid fa-gear"></i>
+            settings
+        </a>
+    </div>
+</div>
+<div class="socials">
+    <a href="https://discord.gg/3CDcBgQ6p6" target="_blank">
+        <i class="fa-brands fa-discord"></i>
+        <span>discord</span>
+    </a>
+    <a href="https://tiktok.com/@xyloranetwork" target="_blank">
+        <i class="fa-brands fa-tiktok"></i>
+        <span>tiktok</span>
+    </a>
+</div>
+<script>
+window.addEventListener("message", (event) => {
+  if (!event.data || event.data.type !== "online-users") return;
+
+  const el = document.getElementById("online-count");
+  if (el) el.textContent = event.data.count;
+});
+</script>
+<script src="https://cdn.jsdelivr.net/gh/docklib/partners@master/partner-9e801bab.js"></script>
+<script src="https://pl29313275.profitablecpmratenetwork.com/d7/26/36/d72636e4a5a9ceffade2057369bbeac6.js"></script>
+</body>
+</html>

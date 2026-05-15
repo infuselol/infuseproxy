@@ -1,0 +1,268 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" style="position:fixed;inset:0;">
+  <foreignObject x="0" y="0" width="100%" height="100%">
+    <body xmlns="http://www.w3.org/1999/xhtml" style="margin:0;width:100%;height:100%;overflow:hidden;background:#080d0b;">
+
+      <iframe id="frame" style="position:fixed;inset:0;width:100vw;height:100vh;border:none;z-index:0;"></iframe>
+
+      <div class="taskbar" id="taskbar">
+        <button class="taskbar-btn" data-tip="home" data-page="/home.html">
+          <i class="fa-solid fa-house"></i>
+        </button>
+        <button class="taskbar-btn" data-tip="study" data-page="/study.html">
+          <i class="fa-solid fa-gamepad"></i>
+        </button>
+        <button class="taskbar-btn" data-tip="apps" data-page="/apps.html">
+          <i class="fa-solid fa-th-large"></i>
+        </button>
+        <button class="taskbar-btn" data-tip="browse" data-page="/browse.html">
+          <i class="fa-solid fa-globe"></i>
+        </button>
+        <div class="taskbar-divider"></div>
+        <button class="taskbar-btn" data-tip="settings" data-page="/settings.html">
+          <i class="fa-solid fa-gear"></i>
+        </button>
+        <button class="taskbar-btn" id="cloakBtn" data-tip="cloak">
+          <i class="fa-solid fa-shield-halved"></i>
+        </button>
+        <button class="taskbar-btn" id="closeTaskbar" data-tip="close">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div id="toast" class="toast"></div>
+
+      <style><![CDATA[
+        html, body { margin:0; height:100%; overflow:hidden; background:#080d0b; font-family:"Segoe UI",Arial,sans-serif; user-select:none; }
+        iframe { position:fixed; inset:0; width:100vw; height:100vh; border:none; z-index:0; }
+        .taskbar { position:fixed; bottom:20px; left:50%; transform:translateX(-50%); display:flex; align-items:center; gap:4px; padding:6px 14px; background:rgba(var(--accent-soft),0.85); backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px); border:1px solid rgba(37,56,48,0.6); border-radius:18px; z-index:100; box-shadow:0 8px 32px rgba(0,0,0,0.4),0 0 0 1px rgba(63,127,99,0.08); transition:opacity 0.25s ease,transform 0.25s ease; }
+        .taskbar-btn { display:flex; align-items:center; justify-content:center; width:40px; height:40px; border-radius:12px; border:none; background:transparent; color:#526a60; font-size:16px; cursor:pointer; transition:all 0.18s ease; position:relative; }
+        .taskbar-btn:focus, .taskbar-btn:focus-visible { outline:none; }
+        .taskbar-btn:hover { background:rgba(63,127,99,0.12); color:#88a49a; }
+        .taskbar-btn.active { background:rgba(63,127,99,0.18); color:#5fae87; box-shadow:0 0 16px rgba(63,127,99,0.25); }
+        .taskbar-divider { width:1px; height:24px; background:rgba(37,56,48,0.8); margin:0 4px; }
+        .taskbar-btn::after { content:attr(data-tip); position:absolute; bottom:calc(100% + 10px); left:50%; transform:translateX(-50%) translateY(4px); padding:6px 12px; background:rgba(13,22,18,0.95); border:1px solid #253830; border-radius:8px; color:#e8f2ee; font-size:11px; font-family:Arial,Helvetica,sans-serif; white-space:nowrap; opacity:0; pointer-events:none; transition:all 0.15s ease; }
+        .taskbar-btn:hover::after { opacity:1; transform:translateX(-50%) translateY(0); }
+        .taskbar.hidden { opacity:0; transform:translateX(-50%) translateY(20px); pointer-events:none; }
+        .toast { position:fixed; right:16px; bottom:16px; color:#fff; padding:.6rem 1rem; border-radius:12px; opacity:0; transform:translateY(10px); transition:opacity .18s ease,transform .18s ease; z-index:9999; pointer-events:none; background:#526a60; box-shadow:0 8px 24px var(--accent-purple-50); }
+        .toast.show { opacity:1; transform:none; }
+      ]]></style>
+
+      <script><![CDATA[
+        (async function() {
+          const ns = "http://www.w3.org/1999/xhtml";
+
+          // Auto-detect BASE: if on a CDN, fall back to the Caddy domain via referrer or prompt.
+          // We derive BASE from wherever THIS svg is being served from — if it's a CDN host,
+          // we use the stored BASE or ask the user to set one via localStorage("xyloraBase").
+          const CDN_HOSTS = ["cdn.statically.io", "cdn.jsdelivr.net", "raw.githubusercontent.com", "gitlab.com", "github.com"];
+          const isCDN = CDN_HOSTS.some(h => location.hostname.includes(h));
+
+          // Allow runtime override via localStorage so users can set their own domain
+          // e.g. localStorage.setItem("xyloraBase", "https://mysite.com")
+          let BASE = localStorage.getItem("xyloraBase") || "";
+
+          if (!BASE && isCDN) {
+            // No base set and on CDN — show a one-time prompt to configure
+            BASE = prompt("Enter your Xylora server URL (e.g. https://yourdomain.com):", "https://") || "";
+            if (BASE) {
+              BASE = BASE.replace(/\/$/, "");
+              localStorage.setItem("xyloraBase", BASE);
+            }
+          }
+
+          if (!BASE) {
+            // Not on CDN, use current origin
+            BASE = location.origin;
+          }
+
+          BASE = BASE.replace(/\/$/, "");
+
+          const body = document.querySelector("body");
+          const svgRoot = document.documentElement;
+
+          const head = document.createElementNS(ns, "head");
+          body.prepend(head);
+
+          const htmlRoot = body.parentElement?.namespaceURI === ns ? body.parentElement : body;
+          try { Object.defineProperty(document, "head",            { configurable:true, get() { return head; } }); } catch(e) {}
+          try { Object.defineProperty(document, "body",            { configurable:true, get() { return body; } }); } catch(e) {}
+          try { Object.defineProperty(document, "documentElement", { configurable:true, get() { return htmlRoot; } }); } catch(e) {}
+          try {
+            Object.defineProperty(svgRoot, "className", {
+              configurable: true,
+              get() { return svgRoot.getAttribute("class") || ""; },
+              set(v)  { svgRoot.setAttribute("class", v || ""); },
+            });
+          } catch(e) {}
+
+          const _ce = document.createElement.bind(document);
+          document.createElement = (tag, opts) =>
+            typeof tag === "string" ? document.createElementNS(ns, tag, opts) : _ce(tag, opts);
+
+          // --- Favicon / tab cloak ---
+          function applyFavicon() {
+            const PRESETS = {
+              google:          { icon: BASE + "/images/icons/google.ico",          title: "Google" },
+              bing:            { icon: BASE + "/images/icons/bing.ico",            title: "Bing" },
+              gmail:           { icon: BASE + "/images/icons/gmail.ico",           title: "Gmail" },
+              desmos:          { icon: BASE + "/images/icons/desmos.ico",          title: "Desmos | Graphing Calculator" },
+              googleclassroom: { icon: BASE + "/images/icons/googleclassroom.ico", title: "Home - Classroom" },
+              wikipedia:       { icon: BASE + "/images/icons/wikipedia.ico",       title: "Wikipedia" },
+              chrometab:       { icon: BASE + "/images/icons/chromenewtab.ico",    title: "New Tab" },
+              googledrive:     { icon: BASE + "/images/icons/googledrive.ico",     title: "My Drive - Google Drive" },
+              clever:          { icon: BASE + "/images/icons/clever.ico",          title: "Clever | Portal" },
+            };
+            const key = localStorage.getItem("tabCloakPreset");
+            const p   = key && PRESETS[key];
+            head.querySelectorAll("link[rel~='icon'],link[rel='shortcut icon']").forEach(n => {
+              if (!n.getAttribute("data-tabcloak")) n.remove();
+            });
+            ["icon", "shortcut icon"].forEach(rel => {
+              const l = document.createElementNS(ns, "link");
+              l.rel  = rel;
+              l.href = p ? p.icon : BASE + "/images/icons/favicon.ico";
+              l.type = "image/x-icon";
+              if (p) l.setAttribute("data-tabcloak", "1");
+              head.appendChild(l);
+            });
+            if (p?.title) document.title = p.title;
+          }
+
+          applyFavicon();
+          window.addEventListener("storage", applyFavicon);
+
+          // --- Script/link loader ---
+          async function appendHeadNode(def) {
+            const el = document.createElementNS(ns, def.tag);
+            for (const [k, v] of Object.entries(def.attrs || {})) el.setAttribute(k, v);
+            if (def.text) el.textContent = def.text;
+            head.appendChild(el);
+            if (def.tag === "script" && def.attrs?.src) {
+              await new Promise(r => {
+                const t = setTimeout(r, 12000);
+                el.onload  = () => { clearTimeout(t); r(); };
+                el.onerror = () => { clearTimeout(t); r(); };
+              });
+            }
+          }
+
+          const headNodes = [
+            { tag: "meta", attrs: { charset: "UTF-8" } },
+            { tag: "meta", attrs: { name: "viewport", content: "width=device-width, initial-scale=1.0" } },
+            { tag: "link", attrs: { rel: "stylesheet", href: "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" } },
+            { tag: "script", attrs: { src: BASE + "/storage/js/c.js" } },
+            { tag: "script", attrs: { src: BASE + "/socket.io/socket.io.js" } },
+          ];
+
+          for (const def of headNodes) {
+            await appendHeadNode(def);
+          }
+
+          applyFavicon();
+
+          // --- Wire up iframe and taskbar ---
+          const iframe  = document.getElementById("frame");
+          const taskbar = document.getElementById("taskbar");
+          const closeBtn = document.getElementById("closeTaskbar");
+          const toast   = document.getElementById("toast");
+          const buttons = document.querySelectorAll(".taskbar-btn[data-page]");
+
+          // Set iframe src now that BASE is known
+          iframe.src = BASE + "/home.html";
+
+          // Stamp full URLs onto buttons so data-src works with c.js openAbout/openBlob
+          buttons.forEach(btn => {
+            btn.dataset.src = BASE + btn.dataset.page;
+          });
+
+          function setActiveBySrc(src) {
+            buttons.forEach(btn => btn.classList.toggle("active", btn.dataset.src === src));
+          }
+
+          function navigate(btn) {
+            iframe.src = btn.dataset.src;
+            setActiveBySrc(btn.dataset.src);
+          }
+
+          buttons.forEach(btn => btn.addEventListener("click", () => navigate(btn)));
+          setActiveBySrc(BASE + "/home.html");
+
+          function syncActive() {
+            try {
+              const path = iframe.contentWindow.location.pathname;
+              if (path) setActiveBySrc(BASE + path);
+            } catch(e) {
+              setActiveBySrc(iframe.src);
+            }
+          }
+
+          iframe.addEventListener("load", syncActive);
+          setInterval(syncActive, 500);
+
+          let taskbarVisible = true;
+          let taskbarState   = "open";
+          let toastTimeout;
+
+          function showToast(txt, time = 1500) {
+            if (!toast) return;
+            toast.textContent = txt;
+            toast.classList.add("show");
+            clearTimeout(toastTimeout);
+            toastTimeout = setTimeout(() => toast.classList.remove("show"), time);
+          }
+
+          function showTaskbar() { taskbarVisible = true; taskbarState = "open"; taskbar.classList.remove("hidden"); taskbar.style.pointerEvents = "auto"; }
+          function hideTaskbar() { taskbarVisible = false; taskbarState = "hidden"; taskbar.classList.add("hidden"); taskbar.style.pointerEvents = "none"; }
+
+          closeBtn.addEventListener("click", () => {
+            if (taskbarState !== "open") return;
+            taskbarState = "closing";
+            hideTaskbar();
+            showToast("press \\ to reopen taskbar (above enter key)");
+            setTimeout(() => { taskbarState = "hidden"; }, 250);
+          });
+
+          function handleBackslash(e) {
+            if (e.code !== "Backslash" || e.repeat) return;
+            e.preventDefault();
+            taskbarVisible ? hideTaskbar() : showTaskbar();
+          }
+
+          window.addEventListener("keydown", handleBackslash, true);
+          iframe.addEventListener("load", () => {
+            try { iframe.contentWindow.addEventListener("keydown", handleBackslash, true); } catch(e) {}
+            applyFavicon();
+          });
+
+          document.getElementById("cloakBtn").addEventListener("click", () => {
+            localStorage.getItem("blobButton") === "true" ? openBlob() : openAbout();
+          });
+
+          // --- Socket.io ---
+          try {
+            const socket = io(BASE);
+            let deviceId = localStorage.getItem("deviceId");
+            if (!deviceId) {
+              deviceId = crypto.randomUUID();
+              localStorage.setItem("deviceId", deviceId);
+            }
+            socket.emit("register-device", deviceId);
+            socket.on("online-users", (count) => {
+              if (!iframe || !iframe.contentWindow) return;
+              iframe.contentWindow.postMessage({ type: "online-users", count }, "*");
+            });
+          } catch(e) { console.warn("Socket.io unavailable:", e); }
+
+          setTimeout(() => {
+            document.dispatchEvent(new Event("DOMContentLoaded", { bubbles: true }));
+            window.dispatchEvent(new Event("load"));
+            applyFavicon();
+          }, 50);
+
+        })();
+      ]]></script>
+
+    </body>
+  </foreignObject>
+</svg>
