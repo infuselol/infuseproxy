@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>geforce now</title>
+  <script src="/storage/browser/scramjet.all.js"></script>
+  <script type="module">
+      import * as BareMux from "/storage/browser/index.mjs";
+      window.BareMux = BareMux;
+  </script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { width: 100%; height: 100%; overflow: hidden; background: #000; }
+    iframe {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+  </style>
+</head>
+<body>
+  <iframe id="frame"></iframe>
+  <script>
+    const TARGET_URL = "https://play.geforcenow.com";
+    const WISP_URL = `${location.protocol === "https:" ? "wss://" : "ws://"}${location.host}/wisp/`;
+    const BASE_PATH = "/";
+
+    async function init() {
+      await new Promise((res, rej) => {
+        let tries = 0;
+        const check = () => {
+          if (typeof $scramjetLoadController !== 'undefined') return res();
+          if (++tries > 50) return rej(new Error("scramjet failed to load"));
+          setTimeout(check, 100);
+        };
+        check();
+      });
+
+      const { ScramjetController } = $scramjetLoadController();
+      const scramjet = new ScramjetController({
+        prefix: BASE_PATH + "scramjet/",
+        files: {
+          wasm: "/storage/browser/scramjet.wasm.wasm",
+          all:  "/storage/browser/scramjet.all.js",
+          sync: "/storage/browser/scramjet.sync.js"
+        }
+      });
+      await scramjet.init();
+
+      await new Promise((res, rej) => {
+        let tries = 0;
+        const check = () => {
+          if (window.BareMux) return res();
+          if (++tries > 50) return rej(new Error("BareMux failed to load"));
+          setTimeout(check, 100);
+        };
+        check();
+      });
+
+      const conn = new window.BareMux.BareMuxConnection(BASE_PATH + "bareworker.js");
+      await conn.setTransport(
+        "/storage/browser/index1.mjs",
+        [{ wisp: WISP_URL }]
+      );
+
+      if ('serviceWorker' in navigator) {
+        await navigator.serviceWorker.register(BASE_PATH + 'sw.js', { scope: BASE_PATH });
+        await navigator.serviceWorker.ready;
+      }
+
+      document.getElementById('frame').src = scramjet.encodeUrl(TARGET_URL);
+    }
+
+    init();
+  </script>
+  <script src="/storage/js/c.js"></script>
+</body>
+</html>

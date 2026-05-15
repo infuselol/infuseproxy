@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>localstorage editor</title>
+<style>
+body {
+  font-family: Arial, sans-serif;
+  background: #0f0f0f;
+  color: #fff;
+  margin: 0;
+  padding: 12px;
+}
+
+.top {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+button {
+  background: transparent;
+  color: #fff;
+  border: 1px solid #222;
+  padding: 4px 8px;
+  cursor: pointer;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+td, th {
+  border: 1px solid #222;
+  padding: 6px;
+}
+
+input, textarea {
+  width: 100%;
+  background: transparent;
+  color: #fff;
+  border: none;
+  outline: none;
+  font: inherit;
+}
+
+textarea {
+  resize: none;
+}
+</style>
+</head>
+<body>
+
+<div class="top">
+  <button onclick="refresh()">refresh</button>
+  <button onclick="addNew()">new</button>
+  <button onclick="clearAll()">clear (deletes all ur data in everything.)</button>
+</div>
+
+<table>
+  <thead>
+    <tr>
+      <th>key</th>
+      <th>value</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody id="t"></tbody>
+</table>
+
+<script>
+function refresh() {
+  const t = document.getElementById("t");
+  t.innerHTML = "";
+
+  for (let i = 0; i < localStorage.length; i++) {
+    const k = localStorage.key(i);
+    if (!k) continue;
+    addRow(k, localStorage.getItem(k));
+  }
+
+  addRow("", "");
+}
+
+function addRow(key, value) {
+  const t = document.getElementById("t");
+  const tr = document.createElement("tr");
+
+  tr.innerHTML = `
+    <td><input value="${key}"></td>
+    <td><textarea>${value || ""}</textarea></td>
+    <td><button>x</button></td>
+  `;
+
+  const k = tr.children[0].children[0];
+  const v = tr.children[1].children[0];
+  const b = tr.children[2].children[0];
+
+  k.onblur = () => {
+    const newKey = k.value.trim();
+    if (!newKey) return;
+
+    if (!key) {
+      localStorage.setItem(newKey, v.value);
+      addRow(newKey, v.value);
+      tr.remove();
+      return;
+    }
+
+    if (newKey !== key) {
+      const val = localStorage.getItem(key);
+      localStorage.removeItem(key);
+      localStorage.setItem(newKey, val);
+      refresh();
+    }
+  };
+
+  v.onblur = () => {
+    const kVal = k.value.trim();
+    if (!kVal) return;
+    localStorage.setItem(kVal, v.value);
+  };
+
+  b.onclick = () => {
+    const kVal = k.value.trim();
+    if (kVal) localStorage.removeItem(kVal);
+    refresh();
+  };
+
+  t.appendChild(tr);
+}
+
+function addNew() {
+  const key = prompt("key");
+  if (!key) return;
+
+  const tr = document.createElement("tr");
+
+  tr.innerHTML = `
+    <td><input value="${key}"></td>
+    <td><textarea></textarea></td>
+    <td><button>x</button></td>
+  `;
+
+  const k = tr.children[0].children[0];
+  const v = tr.children[1].children[0];
+  const b = tr.children[2].children[0];
+
+  localStorage.setItem(key, "");
+
+  v.onblur = () => {
+    localStorage.setItem(k.value.trim(), v.value);
+  };
+
+  b.onclick = () => {
+    localStorage.removeItem(k.value.trim());
+    tr.remove();
+  };
+
+  document.getElementById("t").appendChild(tr);
+}
+
+function clearAll() {
+  localStorage.clear();
+  refresh();
+}
+
+refresh();
+</script>
+
+</body>
+</html>

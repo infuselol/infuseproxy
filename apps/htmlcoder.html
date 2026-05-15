@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HTML Coder - mizu</title>
+  <style>
+    * {box-sizing: border-box; margin:0; padding:0;}
+    body {display:flex; flex-direction:column; height:100vh; font-family:Arial,sans-serif;}
+    .toolbar {
+      display:flex; align-items:center; justify-content:space-between;
+      background:#1e1e1e; color:#eee; padding:0.5rem 1rem;
+    }
+    .title {font-size:1rem; text-transform:lowercase;}
+    .actions {display:flex; gap:0.5rem; align-items:center;}
+    .actions button, .actions select {
+      background:#2e2e2e; color:#eee; border:none; padding:0.4rem 0.8rem;
+      border-radius:4px; font-size:0.85rem; cursor:pointer;
+      transition:background 0.2s;
+    }
+    .actions button:hover, .actions select:hover {background:#3e3e3e;}
+    .container {flex:1; display:flex; overflow:hidden;}
+    #editor, iframe {
+      height:100%; transition:width 0.3s ease;
+    }
+    #editor {width:50%;}
+    iframe {width:50%; background:#fff; border:none;}
+    .mode-editor-only #editor {width:100%;}
+    .mode-editor-only iframe {width:0;}
+    .mode-preview-only iframe {width:100%;}
+    .mode-preview-only #editor {width:0;}
+  </style>
+</head>
+<body>
+  <div class="toolbar">
+    <span class="title">html coder</span>
+    <div class="actions">
+      <button id="toggleBtn">Edit</button>
+      <button id="runBtn">Run</button>
+      <select id="slotSelect">
+        <option value="">Slot</noption>
+        <option value="slot1">1</option>
+        <option value="slot2">2</option>
+        <option value="slot3">3</option>
+      </select>
+      <button id="saveSlot">Save</button>
+      <button id="loadSlot">Load</button>
+      <button id="openFile">Open</button>
+      <button id="download">Download</button>
+      <input type="file" id="fileInput" accept=".html,.txt" style="display:none">
+    </div>
+  </div>
+  <div class="container" id="container">
+    <div id="editor"></div>
+    <iframe id="preview"></iframe>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/monaco-editor@0.44.0/min/vs/loader.js"></script>
+  <script>
+    require.config({ paths: {vs:'https://cdn.jsdelivr.net/npm/monaco-editor@0.44.0/min/vs'} });
+    require(['vs/editor/editor.main'], ()=>{
+      window.editor = monaco.editor.create(
+        document.getElementById('editor'),{
+          value:`<!DOCTYPE html>\n<html>\n<head><title>Your Page</title></head>\n<body>\n  <h1>Hello!</h1>\n  <p>Sample paragraph</p>\n</body>\n</html>`,
+          language:'html', theme:'vs-dark', minimap:{enabled:false}, automaticLayout:true
+        }
+      );  
+    });
+    const container=document.getElementById('container');
+    document.getElementById('toggleBtn').onclick=()=>{
+      container.classList.toggle('mode-editor-only');
+      container.classList.remove('mode-preview-only');
+      document.getElementById('toggleBtn').textContent = container.classList.contains('mode-editor-only')?'Preview':'Edit';
+    };
+    document.getElementById('runBtn').onclick=()=>{
+      document.getElementById('preview').srcdoc = editor.getValue();
+    };
+    document.getElementById('openFile').onclick=()=>document.getElementById('fileInput').click();
+    document.getElementById('fileInput').onchange=e=>{
+      const f=e.target.files[0]; if(f){const r=new FileReader();r.onload=()=>editor.setValue(r.result);r.readAsText(f);} };
+    document.getElementById('download').onclick=()=>{
+      const b=new Blob([editor.getValue()],{type:'text/html'});
+      const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='code.html';a.click();
+    };
+    const slotSelect=document.getElementById('slotSelect');
+    document.getElementById('saveSlot').onclick=()=>{
+      const s=slotSelect.value; if(!s)return; localStorage.setItem(s,editor.getValue());
+    };
+    document.getElementById('loadSlot').onclick=()=>{
+      const s=slotSelect.value; if(!s)return; const v=localStorage.getItem(s); if(v)editor.setValue(v);
+    };
+  </script>
+  <script src="/storage/js/c.js"></script>
+</body>
+</html>
